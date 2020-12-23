@@ -8,7 +8,7 @@ module.exports.IDENTIFY = (data) => {
         op: Constants.GATEWAY_OP_CODES.IDENTIFY,
         d: {
             token: data.token || null,
-            intents: 513,
+            intents: data.intents,
             properties: {
                 $os: require('os').platform(),
                 $browser: MODULE_NAME,

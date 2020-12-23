@@ -14,9 +14,10 @@ module.exports = class Client extends EventEmitter {
      * The Client class
      * @param token
      */
-    constructor (token = null) {
+    constructor (token = null, intents = 513) {
         super()
         this.token = token
+        this.intents = intents
         this.ws = new WebSocket(this)
         this._APIRequest = new APIRequest(this)
         /* Declare client events */
@@ -32,7 +33,7 @@ module.exports = class Client extends EventEmitter {
      */
     login (token) {
         this.token = token || this.token
-        this.ws.connect(this.token)
+        this.ws.connect(this.token, this.intents)
     }
 
     /**

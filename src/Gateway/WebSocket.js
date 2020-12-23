@@ -14,16 +14,24 @@ module.exports = class WebSocket extends EventEmitter {
         this.is_ready = false
         this.is_disconnected = false
         this._ws = null
+        this._seq = null
+
+        this.lastHeartbeatSentAt = null
+        this.lastHeartbeatAckReceivedAt = null
+    }
+
+    get ping () {
+        return this.lastHeartbeatSentAt - this.lastHeartbeatAckReceivedAt
     }
 
     /**
      * Connects the client to the Discord Gateway
      * @param token
      */
-    connect (token) {
+    connect (token, intents) {
         this._ws = new WS(Endpoints.GATEWAY + '/?v=' + Constants.GATEWAY_VERSION + '&encoding=json')
         this._ws.once('open', () => {
-            this._WSConnect(Payloads.IDENTIFY({ token }))
+            this._WSConnect(Payloads.IDENTIFY({ token, intents }))
         })
         this._ws.once('close', this._handleWSClose.bind(this))
         this._ws.once('error', this._handleWSError.bind(this))
@@ -57,16 +65,34 @@ module.exports = class WebSocket extends EventEmitter {
 
     _handleWSMessage (data, flags) {
         const message = this._decompressWSMessage(data, flags)
-        switch (message.t) {
-        case 'READY':
-            if (!this.is_ready) {
-                this.emit('ready', message.d.user)
-                this.is_ready = true
+        console.log(message)
+        switch (message.op) {
+        case 10:
+            setInterval(() => {
+                this.WSSend({
+                    op: 1,
+                    d: this._seq
+                })
+                this.lastHeartbeatSentAt = Date.now()
+            }, message.d.heartbeat_interval)
+            break
+        case 11:
+            this.lastHeartbeatAckReceivedAt = Date.now()
+            break
+        case 0: {
+            this._seq = message.s
+            switch (message.t) {
+            case 'READY':
+                if (!this.is_ready) {
+                    this.emit('ready', message.d.user)
+                    this.is_ready = true
+                }
+                break
+            case 'MESSAGE_CREATE':
+                this.emit('message', message.d)
+                break
             }
-            break
-        case 'MESSAGE_CREATE':
-            this.emit('message', message.d)
-            break
+        }
         }
     }
 
