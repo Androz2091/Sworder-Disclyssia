@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
-const axios = require('axios');
-const Endpoints = require('../Gateway/Endpoints');
+const axios = require('axios')
+const Endpoints = require('../Gateway/Endpoints')
 
 module.exports = class APIRequest {
-    constructor(client) {
-        this._client = client;
+    constructor (client) {
+        this._client = client
     }
 
-    make(method, endpoint, options = {}) {
+    make (method, endpoint, options = {}) {
         return new Promise((resolve, reject) => {
             axios({
                 method,
@@ -16,11 +16,11 @@ module.exports = class APIRequest {
                 data: options.data || null,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bot ${this._client.token}`
+                    Authorization: `Bot ${this._client.token}`
                 }
             })
-            .then((response) => resolve(response.data))
-            .catch(reject);
-        });
+                .then((response) => resolve(response.data))
+                .catch(reject)
+        })
     }
-};
+}

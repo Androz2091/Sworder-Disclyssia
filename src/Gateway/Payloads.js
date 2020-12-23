@@ -1,21 +1,22 @@
-'use strict';
+'use strict'
 
-const Constants = require('../Constants');
-const MODULE_NAME = require('../../package').name;
+const Constants = require('../Constants')
+const MODULE_NAME = require('../../package').name
 
 module.exports.IDENTIFY = (data) => {
     return {
         op: Constants.GATEWAY_OP_CODES.IDENTIFY,
         d: {
             token: data.token || null,
+            intents: 513,
             properties: {
                 $os: require('os').platform(),
                 $browser: MODULE_NAME,
                 $device: MODULE_NAME
             }
         }
-    };
-};
+    }
+}
 module.exports.PRESENCE = (data) => {
     return {
         op: Constants.GATEWAY_OP_CODES.PRESENCE_UPDATE,
@@ -29,5 +30,5 @@ module.exports.PRESENCE = (data) => {
             since: data.since || Date.now(),
             afk: !!data.afk
         }
-    };
-};
+    }
+}
