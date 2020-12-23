@@ -11,10 +11,11 @@ module.exports = class WebSocket extends EventEmitter {
     constructor (client) {
         super()
         this._client = client
-        this.is_ready = false
-        this.is_disconnected = false
         this._ws = null
         this._seq = null
+
+        this.isReady = false
+        this.isDisconnected = false
 
         this.lastHeartbeatSentAt = null
         this.lastHeartbeatAckReceivedAt = null
@@ -42,7 +43,7 @@ module.exports = class WebSocket extends EventEmitter {
      * Disconnects the client from the Discord Gateway
      */
     disconnect () {
-        this.is_disconnected = true
+        this.isDisconnected = true
         this._ws.terminate()
     }
 
@@ -83,9 +84,9 @@ module.exports = class WebSocket extends EventEmitter {
             this._seq = message.s
             switch (message.t) {
             case 'READY':
-                if (!this.is_ready) {
+                if (!this.isReady) {
                     this.emit('ready', message.d.user)
-                    this.is_ready = true
+                    this.isReady = true
                 }
                 break
             case 'MESSAGE_CREATE':
@@ -105,7 +106,7 @@ module.exports = class WebSocket extends EventEmitter {
     }
 
     _handleWSClose (code, data) {
-        if (this._ws !== null && !this.is_disconnected) {
+        if (this._ws !== null && !this.isDisconnected) {
             setTimeout(() => this.connect(this._client.token), 1000)
         }
     }
