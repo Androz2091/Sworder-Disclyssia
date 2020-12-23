@@ -22,7 +22,7 @@ module.exports = class WebSocket extends EventEmitter {
     }
 
     get ping () {
-        return this.lastHeartbeatSentAt - this.lastHeartbeatAckReceivedAt
+        return this.lastHeartbeatAckReceivedAt - this.lastHeartbeatSentAt;
     }
 
     /**
