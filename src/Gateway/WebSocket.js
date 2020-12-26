@@ -64,18 +64,20 @@ module.exports = class WebSocket extends EventEmitter {
         }
     }
 
+    _sendHeartbeat () {
+        this.WSSend({
+            op: 1,
+            d: this._seq
+        })
+        this.lastHeartbeatSentAt = Date.now()
+    }
+
     _handleWSMessage (data, flags) {
         const message = this._decompressWSMessage(data, flags)
-        console.log(message)
         switch (message.op) {
         case 10:
-            setInterval(() => {
-                this.WSSend({
-                    op: 1,
-                    d: this._seq
-                })
-                this.lastHeartbeatSentAt = Date.now()
-            }, message.d.heartbeat_interval)
+            this._sendHeartbeat()
+            setInterval(() => this._sendHeartbeat, message.d.heartbeat_interval)
             break
         case 11:
             this.lastHeartbeatAckReceivedAt = Date.now()
